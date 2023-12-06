@@ -101,7 +101,6 @@ class Enemy(PhysicsEntity):
                         for i in range(4):
                             self.game.sparks.append(Spark(self.game.projectiles[-1][0], random.random() - 0.5 + math.pi, 2 + random.random()))
                     if (not self.flip and dis[0] > 0):
-                        self.game.sfx['shoot'].play()
                         self.game.projectiles.append([[self.rect().centerx + 7, self.rect().centery], 1.5, 0])
                         for i in range(4):
                             self.game.sparks.append(Spark(self.game.projectiles[-1][0], random.random() - 0.5, 2 + random.random()))

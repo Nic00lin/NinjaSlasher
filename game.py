@@ -131,6 +131,7 @@ class Game:
                     self.lives -= 1
                     if self.lives <= 0:
                         self.show_game_over_menu()
+                        self.level = 0
                         pygame.display.flip()
                         self.lives += 4
                     else:
@@ -180,8 +181,8 @@ class Game:
                     if self.player.rect().collidepoint(projectile[0]):
                         self.projectiles.remove(projectile)
                         self.dead += 1
+                        self.sfx['hit'].play()
                         self.screenshake = max(16, self.screenshake)
-                        self.game.sfx['shoot'].play()
                         for i in range(30):
                             angle = random.random() * math.pi * 2
                             speed = random.random() * 5
