@@ -49,6 +49,20 @@ class Game:
             'projectile': load_image('projectile.png'),
         }
 
+        self.sfx = {
+            'jump': pygame.mixer.Sound('data/sfx/jump.wav'),
+            'dash': pygame.mixer.Sound('data/sfx/dash.mp3'),
+            'hit': pygame.mixer.Sound('data/sfx/hit.wav'),
+            'shoot': pygame.mixer.Sound('data/sfx/shoot.wav'),
+            'ambience': pygame.mixer.Sound('data/sfx/ambience.wav'),
+        }
+
+        self.sfx['jump'].set_volume(0.7)
+        self.sfx['dash'].set_volume(0.1)
+        self.sfx['hit'].set_volume(0.6)
+        self.sfx['shoot'].set_volume(0.3)
+        self.sfx['ambience'].set_volume(0.2)
+
         self.clouds = Clouds(self.assets['clouds'], count=16)
 
         self.player = Player(self, (50, 50), (8, 15))
@@ -89,6 +103,12 @@ class Game:
 
     def run(self):
         self.show_main_menu()
+
+        pygame.mixer.music.load('data/music.mp3')
+        pygame.mixer.music.set_volume(0.1)
+        pygame.mixer.music.play(-1)
+
+        self.sfx['ambience'].play(-1)
         while True:
             self.display.fill((0, 0, 0, 0))
             self.display_2.blit(self.assets['background'], (0, 0))
@@ -111,6 +131,8 @@ class Game:
                     self.lives -= 1
                     if self.lives <= 0:
                         self.show_game_over_menu()
+                        pygame.display.flip()
+                        self.lives += 4
                     else:
                         self.load_level(self.level)
             self.scroll[0] += (self.player.rect().centerx - self.display.get_width() / 2 - self.scroll[0]) / 30
@@ -159,6 +181,7 @@ class Game:
                         self.projectiles.remove(projectile)
                         self.dead += 1
                         self.screenshake = max(16, self.screenshake)
+                        self.game.sfx['shoot'].play()
                         for i in range(30):
                             angle = random.random() * math.pi * 2
                             speed = random.random() * 5
@@ -192,27 +215,22 @@ class Game:
                     pygame.quit()
                     sys.exit()
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_LEFT:
+                    if event.key == pygame.K_a:
                         self.movement[0] = True
-                    if event.key == pygame.K_RIGHT:
+                    if event.key == pygame.K_d:
                         self.movement[1] = True
-                    if event.key == pygame.K_UP:
-                        self.player.jump()
-                    if event.key == pygame.K_x:
+                    if event.key == pygame.K_w:
+                        if self.player.jump():
+                            self.sfx['jump'].play()
+                    if event.key == pygame.K_SPACE:
                         self.player.dash()
                     if event.key == pygame.K_p:
                         self.toggle_pause()
                 if event.type == pygame.KEYUP:
-                    if event.key == pygame.K_LEFT:
+                    if event.key == pygame.K_a:
                         self.movement[0] = False
-                    if event.key == pygame.K_RIGHT:
+                    if event.key == pygame.K_d:
                         self.movement[1] = False
-
-            if self.paused:
-                # код для отображения экрана паузы
-                pause_text = pygame.font.Font(None, 36).render("Paused", True, (255, 255, 255))
-                self.display.blit(pause_text, (self.display.get_width() // 2 - pause_text.get_width() // 2,
-                                               self.display.get_height() // 2 - pause_text.get_height() // 2))
 
             if self.transition:
                 transition_surf = pygame.Surface(self.display.get_size())
@@ -232,11 +250,15 @@ class Game:
 
     def show_main_menu(self):
         main_menu = MainMenu(self)
-        main_menu.run()
+        main_menu.run("Main Menu", (255, 255, 255))
 
     def show_game_over_menu(self):
+        image = pygame.image.load('data/images/death_screen.jpg')
+        self.display.blit(image,(-1890,-950))
+        pygame.time.delay(1000)
         main_menu = MainMenu(self)
-        main_menu.run()
+        main_menu.run("Game Over", (255, 0, 0))
+
 
     def render_lives(self):
         lives_text = self.font.render(f"Lives: {self.lives}", True, (255, 255, 255))

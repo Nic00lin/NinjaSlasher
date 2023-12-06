@@ -26,10 +26,11 @@ class MainMenu:
 
         return False
 
-    def draw(self):
+    def draw(self, title, color):
+
         image = pygame.image.load('data/images/menu.jpg')
         self.game.screen.blit(image,(0,0))
-        title_text = self.main_menu_font.render("Main Menu", True, (0, 0, 0))
+        title_text = self.main_menu_font.render(title, True, color)
         title_x = self.game.screen.get_width() // 8 - title_text.get_width() // 2
         self.game.display.blit(title_text, (title_x, 50))
 
@@ -42,9 +43,10 @@ class MainMenu:
         self.game.screen.blit(pygame.transform.scale(self.game.display, self.game.screen.get_size()), (0, 0))
         pygame.display.update()
 
-    def run(self):
+    def run(self, title, color):
         while True:
             if self.handle_events():
                 break
-            self.draw()
+            self.draw(title, color)
             self.game.clock.tick(60)
+
